@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Лекция: {{ lesson.title }} | {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav class="breadcrumbs">
+        <a href="{{ url_for('index') }}">Главная</a> /
+        <a href="{{ url_for('course_detail', course_id=course.id) }}">{{ course.title }}</a> /
+        <span>Лекция: {{ lesson.title }}</span>
+    </nav>
+
+    <header class="lesson-header">
+        <h1>{{ lesson.title }}</h1>
+        <p class="lesson-meta">
+            Модуль: <strong>{{ lesson.module_title }}</strong>
+        </p>
+        {% if lesson.description %}
+            <p class="lesson-description">{{ lesson.description }}</p>
+        {% endif %}
+    </header>
+
+    <section class="lesson-content">
+        {% if lesson.content %}
+            {{ lesson.content | safe }}
+        {% else %}
+            <p><em>Текст лекции пока не заполнен.</em></p>
+        {% endif %}
+    </section>
+
+    {% if enrollment %}
+        <section class="lesson-progress">
+            <form method="post"
+                  action="{{ url_for('complete_lesson',
+                                     course_id=course.id,
+                                     lesson_id=lesson.id) }}">
+                {% if progress and progress.status == 'completed' %}
+                    <p>
+                        Статус: <span class="badge badge-success">Пройдено</span>
+                    </p>
+                    <button type="submit" class="btn btn-secondary">
+                        Отметить как пройдено ещё раз
+                    </button>
+                {% else %}
+                    <p>
+                        Статус:
+                        {% if progress and progress.status == 'in_progress' %}
+                            <span class="badge badge-info">В процессе</span>
+                        {% else %}
+                            <span class="badge badge-muted">Не начато</span>
+                        {% endif %}
+                    </p>
+                    <button type="submit" class="btn btn-primary">
+                        Отметить лекцию как пройденную
+                    </button>
+                {% endif %}
+            </form>
+        </section>
+    {% else %}
+        <p><em>Курс ещё не назначен вам официально, прогресс не фиксируется.</em></p>
+    {% endif %}
+
+    <div class="back-link">
+        <a href="{{ url_for('course_detail', course_id=course.id) }}" class="btn btn-secondary">
+            ← Вернуться к структуре курса
+        </a>
+    </div>
+</div>
+{% endblock %}

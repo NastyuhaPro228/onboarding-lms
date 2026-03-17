@@ -1,0 +1,79 @@
+<!-- templates/profile.html -->
+{% extends "base.html" %}
+
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Профиль</h1>
+
+    <section class="profile-section">
+        <h2>Мои курсы и прогресс</h2>
+
+        {% if enrollments %}
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Курс</th>
+                        <th>Статус</th>
+                        <th>Назначен</th>
+                        <th>Завершён</th>
+                        <th>Прогресс по урокам</th>
+                        <th>Лучший результат теста</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for e in enrollments %}
+                    <tr>
+                        <td>{{ e.title }}</td>
+                        <td>
+                            {% if e.status == 'assigned' %}
+                                <span class="badge badge-muted">Назначен</span>
+                            {% elif e.status == 'in_progress' %}
+                                <span class="badge badge-success">В процессе</span>
+                            {% elif e.status == 'completed' %}
+                                <span class="badge badge-success">Завершён</span>
+                            {% elif e.status == 'cancelled' %}
+                                <span class="badge badge-danger">Отменён</span>
+                            {% else %}
+                                {{ e.status }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ e.assigned_at.strftime('%d.%m.%Y %H:%M') if e.assigned_at else '' }}
+                        </td>
+                        <td>
+                            {{ e.completed_at.strftime('%d.%m.%Y %H:%M') if e.completed_at else '-' }}
+                        </td>
+                        <td>
+                            {% if e.progress_percent is not none %}
+                                {{ e.completed_lessons }}/{{ e.total_lessons }}
+                                ({{ e.progress_percent }}%)
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if e.best_score is not none %}
+                                {{ e.best_score }}%
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('course_detail', course_id=e.course_id) }}"
+                               class="btn btn-small">
+                                Открыть курс
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Вам ещё не назначено ни одного курса.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

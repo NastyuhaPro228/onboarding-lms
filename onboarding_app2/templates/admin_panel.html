@@ -1,0 +1,1175 @@
+<!-- templates/admin_panel.html -->
+{% extends "base.html" %}
+
+{% block title %}Административная панель | Обучение новых сотрудников{% endblock %}
+
+{% block content %}
+<div class="container admin-container">
+    <h1>Административная панель</h1>
+    <!-- Где-то в меню админки добавь эту строку -->
+<li class="nav-item">
+    <a class="nav-link" href="/admin/practice_submissions">
+        <i class="bi bi-check-circle"></i> Проверка практик
+    </a>
+</li>
+    <div class="admin-grid">
+        <!-- Пользователи -->
+        <section class="admin-block">
+            <h2>Пользователи</h2>
+
+            <form method="post" action="{{ url_for('admin_create_user') }}" class="admin-form">
+                <h3>Создать нового пользователя</h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Пароль (условно)</label>
+                        <input type="password" name="password" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Имя</label>
+                        <input type="text" name="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Фамилия</label>
+                        <input type="text" name="last_name" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Роль</label>
+                    <select name="role_id" required>
+                        {% for role in roles %}
+                            <option value="{{ role.id }}">{{ role.name }} ({{ role.code }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Создать пользователя</button>
+                </div>
+            </form>
+
+            <h3>Список пользователей</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Email</th>
+                        <th>ФИО</th>
+                        <th>Роль</th>
+                        <th>Статус</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for u in users %}
+                    <tr>
+                        <td>{{ u.id }}</td>
+                        <td>{{ u.email }}</td>
+                        <td>{{ u.last_name }} {{ u.first_name }}</td>
+                        <td>{{ u.role_name }} ({{ u.role_code }})</td>
+                        <td>
+                            {% if u.is_active %}
+                                <span class="badge badge-success">Активен</span>
+                            {% else %}
+                                <span class="badge badge-danger">Заблокирован</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin_toggle_user', user_id=u.id) }}" class="btn btn-small">
+                                {% if u.is_active %}Заблокировать{% else %}Разблокировать{% endif %}
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Курсы -->
+        <section class="admin-block">
+            <h2>Курсы</h2>
+
+            <form method="post" action="{{ url_for('admin_create_course') }}" class="admin-form">
+                <h3>Создать новый курс</h3>
+
+                <div class="form-group">
+                    <label>Код курса</label>
+                    <input type="text" name="code" required placeholder="SALES_GUEST_SERVICE">
+                </div>
+
+                <div class="form-group">
+                    <label>Название</label>
+                    <input type="text" name="title" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Описание</label>
+                    <textarea name="description" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Автор курса</label>
+                    <select name="created_by" required>
+                        {% for a in admins %}
+                            <option value="{{ a.id }}">{{ a.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Создать курс</button>
+                </div>
+            </form>
+
+            <h3>Список курсов</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Код</th>
+                        <th>Название</th>
+                        <th>Автор</th>
+                        <th>Активен</th>
+                        <th>Редактирование</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for c in courses %}
+                    <tr>
+                        <td>{{ c.id }}</td>
+                        <td>{{ c.code }}</td>
+                        <td>{{ c.title }}</td>
+                        <td>{{ c.last_name }} {{ c.first_name }}</td>
+                        <td>
+                            {% if c.is_active %}
+                                <span class="badge badge-success">Да</span>
+                            {% else %}
+                                <span class="badge badge-danger">Нет</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <!-- Редактирование основных параметров курса -->
+                            <form method="post"
+                                  action="{{ url_for('admin_update_course', course_id=c.id) }}"
+                                  class="inline-form">
+                                <input type="text" name="title" value="{{ c.title }}" required>
+                                <input type="text" name="description" value="{{ c.description or '' }}" placeholder="Описание">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="is_active" {% if c.is_active %}checked{% endif %}>
+                                    Активен
+                                </label>
+                                <button type="submit" class="btn btn-small">Сохранить</button>
+                            </form>
+                        </td>
+                        <td>
+                            <!-- Кнопки действий: модули, контент, удаление -->
+                            <button type="button"
+                                    class="btn btn-small"
+                                    onclick="openModal('modules-modal-{{ c.id }}')">
+                                Редактировать модули
+                            </button>
+
+                            <button type="button"
+                                    class="btn btn-small"
+                                    onclick="openModal('content-modal-{{ c.id }}')">
+                                Редактировать контент
+                            </button>
+
+                            <form method="post"
+                                  action="{{ url_for('admin_delete_course', course_id=c.id) }}"
+                                  class="inline-form"
+                                  onsubmit="return confirm('Удалить курс {{ c.title }}?');">
+                                <button type="submit" class="btn btn-small btn-danger">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <!-- === НОВОЕ: Назначение курсов пользователям === -->
+        <section class="admin-block">
+            <h2>Назначение курсов пользователям</h2>
+
+            <!-- Выбор пользователя -->
+            <form method="get" action="{{ url_for('admin_panel') }}" class="admin-form">
+                <div class="form-group">
+                    <label>Пользователь (сотрудник)</label>
+                    <select name="selected_user_id" onchange="this.form.submit()">
+                        <option value="">-- Выберите сотрудника --</option>
+                        {% for e in employees %}
+                            <option value="{{ e.id }}"
+                                {% if selected_user_id and selected_user_id == e.id %}selected{% endif %}>
+                                {{ e.full_name }} ({{ e.role_code }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+
+            {% if selected_user %}
+                <p class="hint">
+                    Текущий пользователь: <strong>{{ selected_user.full_name }}</strong>
+                </p>
+
+                <div class="user-courses-columns">
+                    <!-- Курсы, уже назначенные пользователю -->
+                    <div class="user-courses-column">
+                        <h3>Назначенные курсы</h3>
+                        {% if assigned_courses %}
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Курс</th>
+                                        <th>Статус</th>
+                                        <th>Действие</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for ac in assigned_courses %}
+                                    <tr>
+                                        <td>{{ ac.title }}</td>
+                                        <td>
+                                            {% if ac.status == 'assigned' %}Назначен{% endif %}
+                                            {% if ac.status == 'in_progress' %}В процессе{% endif %}
+                                            {% if ac.status == 'completed' %}Завершён{% endif %}
+                                            {% if ac.status == 'cancelled' %}Отменён{% endif %}
+                                        </td>
+                                        <td>
+                                            <form method="post"
+                                                  action="{{ url_for('admin_unassign_course') }}"
+                                                  class="inline-form"
+                                                  onsubmit="return confirm('Отписать пользователя от курса {{ ac.title }}?');">
+                                                <input type="hidden" name="user_id" value="{{ selected_user_id }}">
+                                                <input type="hidden" name="course_id" value="{{ ac.course_id }}">
+                                                <button type="submit" class="btn btn-small btn-danger">
+                                                    Отписать
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p><em>У пользователя пока нет назначенных курсов.</em></p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Курсы, которых у пользователя нет -->
+                    <div class="user-courses-column">
+                        <h3>Доступные для назначения курсы</h3>
+                        {% if available_courses %}
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Курс</th>
+                                        <th>Действие</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for c in available_courses %}
+                                    <tr>
+                                        <td>{{ c.title }}</td>
+                                        <td>
+                                            <form method="post"
+                                                  action="{{ url_for('admin_assign_course') }}"
+                                                  class="inline-form">
+                                                <input type="hidden" name="user_id" value="{{ selected_user_id }}">
+                                                <input type="hidden" name="course_id" value="{{ c.id }}">
+                                                <input type="hidden" name="status" value="assigned">
+                                                <button type="submit" class="btn btn-small btn-primary">
+                                                    Назначить
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <p><em>Пользователю уже назначены все доступные курсы.</em></p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <p class="hint">
+                    Выберите сотрудника, чтобы посмотреть, какие курсы ему назначены, и управлять доступом.
+                </p>
+            {% endif %}
+        </section>
+    </div> <!-- .admin-grid -->
+
+    {# Модальные окна для каждого курса: модули и контент #}
+    {% for c in courses %}
+        {% set course_modules = modules_by_course.get(c.id, []) %}
+        {% set course_tests = tests_by_course.get(c.id, []) %}
+
+        <!-- Модальное окно для редактирования модулей курса {{ c.title }} -->
+        <div id="modules-modal-{{ c.id }}" class="modal-overlay">
+            <div class="modal modal-large">
+                <div class="modal-header">
+                    <h2>Модули курса: {{ c.title }}</h2>
+                    <button class="modal-close" type="button"
+                            onclick="closeModal('modules-modal-{{ c.id }}')">×</button>
+                </div>
+                <div class="modal-body">
+                    {% if course_modules %}
+                        <h3>Существующие модули</h3>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Порядок</th>
+                                    <th>Название</th>
+                                    <th>Описание</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for m in course_modules %}
+                                <tr>
+                                    <td>{{ m.id }}</td>
+                                    <td>
+                                        <form method="post"
+                                              action="{{ url_for('admin_manage_modules', course_id=c.id) }}"
+                                              class="inline-form">
+                                            <input type="hidden" name="action" value="update">
+                                            <input type="hidden" name="module_id" value="{{ m.id }}">
+                                            <input type="number" name="sort_order"
+                                                   value="{{ m.sort_order }}" style="width:70px;">
+                                    </td>
+                                    <td>
+                                            <input type="text" name="title" value="{{ m.title }}" required>
+                                    </td>
+                                    <td>
+                                            <input type="text" name="description" value="{{ m.description or '' }}">
+                                    </td>
+                                    <td>
+                                            <button type="submit" class="btn btn-small">Сохранить</button>
+                                        </form>
+
+                                        <form method="post"
+                                              action="{{ url_for('admin_manage_modules', course_id=c.id) }}"
+                                              class="inline-form"
+                                              onsubmit="return confirm('Удалить модуль {{ m.title }}?');">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="module_id" value="{{ m.id }}">
+                                            <button type="submit" class="btn btn-small btn-danger">Удалить</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p><em>Для этого курса ещё нет модулей.</em></p>
+                    {% endif %}
+
+                    <hr>
+
+                    <h3>Добавить новый модуль</h3>
+                    <form method="post"
+                          action="{{ url_for('admin_manage_modules', course_id=c.id) }}"
+                          class="admin-form">
+                        <input type="hidden" name="action" value="create">
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Порядок</label>
+                                <input type="number" name="sort_order" value="1">
+                            </div>
+                            <div class="form-group">
+                                <label>Название</label>
+                                <input type="text" name="title" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Описание</label>
+                            <input type="text" name="description">
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Добавить модуль</button>
+                            <button type="button" class="btn btn-secondary"
+                                    onclick="closeModal('modules-modal-{{ c.id }}')">
+                                Закрыть
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно для редактирования контента курса {{ c.title }} -->
+        <div id="content-modal-{{ c.id }}" class="modal-overlay">
+            <div class="modal modal-large">
+                <div class="modal-header">
+                    <h2>Контент курса: {{ c.title }}</h2>
+                    <button class="modal-close" type="button"
+                            onclick="closeModal('content-modal-{{ c.id }}')">×</button>
+                </div>
+                <div class="modal-body">
+                    {% if course_modules %}
+                        <div class="form-group">
+                            <label>Модуль</label>
+                            <select onchange="adminSelectModule({{ c.id }}, this.value)">
+                                <option value="">-- Выберите модуль --</option>
+                                {% for m in course_modules %}
+                                    <option value="{{ m.id }}">
+                                        Модуль {{ loop.index }}. {{ m.title }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        {% for m in course_modules %}
+                            {% set module_lessons = lessons_by_module.get(m.id, []) if lessons_by_module is defined else [] %}
+                            {% set module_practices = practices_by_module.get(m.id, []) if practices_by_module is defined else [] %}
+                            <div class="content-module-block"
+                                 data-course-id="{{ c.id }}"
+                                 data-module-id="{{ m.id }}"
+                                 style="display:none;">
+                                <h3>Структура модуля: {{ m.title }}</h3>
+                                <ul class="content-items-list">
+                                    {# Лекции #}
+                                    {% for lesson in module_lessons %}
+                                        <li class="content-item"
+                                            data-item-type="lesson"
+                                            data-item-id="{{ lesson.id }}">
+                                            <div class="content-item-actions">
+                                                <button type="button"
+                                                        class="btn-icon"
+                                                        onclick="reorderModuleItem({{ m.id }}, 'lesson', {{ lesson.id }}, 'up', {{ c.id }})">
+                                                    ↑
+                                                </button>
+                                                <button type="button"
+                                                        class="btn-icon"
+                                                        onclick="reorderModuleItem({{ m.id }}, 'lesson', {{ lesson.id }}, 'down', {{ c.id }})">
+                                                    ↓
+                                                </button>
+                                            </div>
+                                            <div class="content-item-main">
+                                                <span class="badge badge-lecture">Лекция</span>
+                                                <button type="button"
+                                                        class="content-item-title btn-link"
+                                                        onclick="openModal('edit-lesson-{{ lesson.id }}')">
+                                                    {{ lesson.title }}
+                                                </button>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+
+                                    {# Практики #}
+                                    {% for p in module_practices %}
+                                        <li class="content-item"
+                                            data-item-type="practice"
+                                            data-item-id="{{ p.id }}">
+                                            <div class="content-item-actions">
+                                                <button type="button"
+                                                        class="btn-icon"
+                                                        onclick="reorderModuleItem({{ m.id }}, 'practice', {{ p.id }}, 'up', {{ c.id }})">
+                                                    ↑
+                                                </button>
+                                                <button type="button"
+                                                        class="btn-icon"
+                                                        onclick="reorderModuleItem({{ m.id }}, 'practice', {{ p.id }}, 'down', {{ c.id }})">
+                                                    ↓
+                                                </button>
+                                            </div>
+                                            <div class="content-item-main">
+                                                <span class="badge badge-practice">Практика</span>
+                                                <button type="button"
+                                                        class="content-item-title btn-link"
+                                                        onclick="openModal('edit-practice-{{ p.id }}')">
+                                                    {{ p.title }}
+                                                </button>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+
+                                    {# Тесты (по модулю) #}
+                                    {% for t in course_tests if t.module_id == m.id %}
+                                        <li class="content-item"
+                                            data-item-type="test"
+                                            data-item-id="{{ t.id }}">
+                                            <div class="content-item-actions">
+                                                <button type="button"
+                                                        class="btn-icon"
+                                                        onclick="reorderModuleItem({{ m.id }}, 'test', {{ t.id }}, 'up', {{ c.id }})">
+                                                    ↑
+                                                </button>
+                                                <button type="button"
+                                                        class="btn-icon"
+                                                        onclick="reorderModuleItem({{ m.id }}, 'test', {{ t.id }}, 'down', {{ c.id }})">
+                                                    ↓
+                                                </button>
+                                            </div>
+                                            <div class="content-item-main">
+                                                <span class="badge badge-test">Тест</span>
+                                                <button type="button"
+                                                        class="content-item-title btn-link"
+                                                        onclick="openModal('edit-test-{{ t.id }}')">
+                                                    {{ t.title }}
+                                                </button>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+
+                                    {# Кнопка добавления нового элемента #}
+                                    <li class="content-item content-item-add">
+                                        <button type="button" class="btn btn-small"
+                                                onclick="openAddContentModal({{ c.id }}, {{ m.id }})">
+                                            + Добавить элемент
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p><em>Для этого курса ещё нет модулей. Сначала создайте хотя бы один модуль.</em></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно "Добавить элемент" для курса {{ c.title }} -->
+        <div id="add-content-modal-{{ c.id }}" class="modal-overlay">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Добавить элемент в модуль</h2>
+                    <button class="modal-close" type="button"
+                            onclick="closeModal('add-content-modal-{{ c.id }}')">×</button>
+                </div>
+                <div class="modal-body">
+                    {# Пока без реального submit, просто форма-шаблон #}
+                    <form class="admin-form" onsubmit="return false;">
+                        <input type="hidden" name="course_id" value="{{ c.id }}">
+                        <input type="hidden" name="module_id" value="" class="add-content-module-id">
+
+                        <div class="form-group">
+                            <label>Тип элемента</label>
+                            <select name="content_type" class="add-content-type" onchange="onChangeContentType(this)">
+                                <option value="lesson">Лекция</option>
+                                <option value="practice">Практика</option>
+                                <option value="test">Тест</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Заголовок</label>
+                            <input type="text" name="title" placeholder="Название лекции / практики / теста">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Краткое описание (необязательно)</label>
+                            <textarea name="description" rows="2"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ссылка на видео (необязательно)</label>
+                            <input type="url" name="video_url" placeholder="https://...">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Загрузка файла (необязательно)</label>
+                            <input type="file" name="file">
+                        </div>
+
+                        <p class="hint">
+                            Все поля, кроме заголовка, можно не заполнять. Позже свяжем эту форму с сохранением в БД.
+                        </p>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Сохранить (пока шаблон)</button>
+                            <button type="button" class="btn btn-secondary"
+                                    onclick="closeModal('add-content-modal-{{ c.id }}')">
+                                Отмена
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {# ===== Модалки редактирования ЛЕКЦИЙ для этого курса ===== #}
+        {% for m in course_modules %}
+            {% set module_lessons = lessons_by_module.get(m.id, []) if lessons_by_module is defined else [] %}
+            {% for lesson in module_lessons %}
+                <div id="edit-lesson-{{ lesson.id }}" class="modal-overlay">
+                    <div class="modal modal-large">
+                        <div class="modal-header">
+                            <h2>Редактирование лекции: {{ lesson.title }}</h2>
+                            <button class="modal-close" type="button"
+                                    onclick="closeModal('edit-lesson-{{ lesson.id }}')">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="post"
+                                  action="{{ url_for('admin_update_lesson', lesson_id=lesson.id) }}"
+                                  class="admin-form">
+                                <div class="form-group">
+                                    <label>Название лекции</label>
+                                    <input type="text" name="title" value="{{ lesson.title }}" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Краткое описание</label>
+                                    <textarea name="description" rows="2">{{ lesson.description or '' }}</textarea>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Ссылка на видео</label>
+                                        <input type="text" name="video_url" value="{{ lesson.video_url or '' }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Ссылка на файл (презентация, PDF)</label>
+                                        <input type="text" name="attachment_url" value="{{ lesson.attachment_url or '' }}">
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Порядок в модуле</label>
+                                        <input type="number" name="sort_order" value="{{ lesson.sort_order or 1 }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" name="is_active"
+                                                   {% if lesson.is_active %}checked{% endif %}>
+                                            Отображать в курсе
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                                    <button type="button" class="btn btn-secondary"
+                                            onclick="closeModal('edit-lesson-{{ lesson.id }}')">
+                                        Отмена
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        {# ===== Модалки редактирования ПРАКТИК для этого курса ===== #}
+        {% for m in course_modules %}
+            {% set module_practices = practices_by_module.get(m.id, []) if practices_by_module is defined else [] %}
+            {% for p in module_practices %}
+                <div id="edit-practice-{{ p.id }}" class="modal-overlay">
+                    <div class="modal modal-large">
+                        <div class="modal-header">
+                            <h2>Редактирование практики: {{ p.title }}</h2>
+                            <button class="modal-close" type="button"
+                                    onclick="closeModal('edit-practice-{{ p.id }}')">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <form method="post"
+                                  action="{{ url_for('admin_update_practice', practice_id=p.id) }}"
+                                  class="admin-form">
+                                <div class="form-group">
+                                    <label>Название практики</label>
+                                    <input type="text" name="title" value="{{ p.title }}" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Краткое описание</label>
+                                    <textarea name="description" rows="2">{{ p.description or '' }}</textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Текст задания</label>
+                                    <textarea name="task_text" rows="6">{{ p.task_text or '' }}</textarea>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Ссылка на файл задания (если есть)</label>
+                                        <input type="text" name="task_file_url" value="{{ p.task_file_url or '' }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Ожидаемый тип ответа</label>
+                                        <select name="expected_answer_type">
+                                            <option value="text"
+                                                {% if p.expected_answer_type == 'text' %}selected{% endif %}>
+                                                Только текст
+                                            </option>
+                                            <option value="file"
+                                                {% if p.expected_answer_type == 'file' %}selected{% endif %}>
+                                                Только файл
+                                            </option>
+                                            <option value="text_or_file"
+                                                {% if p.expected_answer_type == 'text_or_file' %}selected{% endif %}>
+                                                Текст или файл
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Порядок в модуле</label>
+                                        <input type="number" name="sort_order" value="{{ p.sort_order or 1 }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" name="is_active"
+                                                   {% if p.is_active %}checked{% endif %}>
+                                            Отображать в курсе
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                                    <button type="button" class="btn btn-secondary"
+                                            onclick="closeModal('edit-practice-{{ p.id }}')">
+                                        Отмена
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        {# ===== Модалки редактирования ТЕСТОВ для этого курса (полный конструктор с выбором вопроса) ===== #}
+        {% for t in course_tests %}
+            {% set q_list = questions_by_test.get(t.id, []) if questions_by_test is defined else [] %}
+
+            <div id="edit-test-{{ t.id }}" class="modal-overlay">
+                <div class="modal modal-large">
+                    <div class="modal-header">
+                        <h2>Редактирование теста: {{ t.title }}</h2>
+                        <button class="modal-close" type="button"
+                                onclick="closeModal('edit-test-{{ t.id }}')">×</button>
+                    </div>
+                    <div class="modal-body">
+
+                        {# --- 1. Свойства теста (tests) --- #}
+                        <form method="post"
+                              action="{{ url_for('admin_manage_test', course_id=c.id) }}"
+                              class="admin-form">
+                            <input type="hidden" name="action" value="update">
+                            <input type="hidden" name="test_id" value="{{ t.id }}">
+
+                            <div class="form-group">
+                                <label>Название теста</label>
+                                <input type="text" name="title" value="{{ t.title }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Описание</label>
+                                <textarea name="description" rows="2">{{ t.description or '' }}</textarea>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Порог прохождения (%)</label>
+                                    <input type="number" name="passing_score"
+                                           value="{{ t.passing_score }}" min="0" max="100">
+                                </div>
+                                <div class="form-group">
+                                    <label>Лимит попыток (NULL = без лимита)</label>
+                                    <input type="number" name="attempts_limit"
+                                           value="{{ t.attempts_limit or '' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Порядок в модуле/курсе</label>
+                                    <input type="number" name="sort_order"
+                                           value="{{ t.sort_order or 1 }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="checkbox-inline">
+                                    <input type="checkbox" name="is_active"
+                                           {% if t.is_active %}checked{% endif %}>
+                                    Тест активен
+                                </label>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-small">Сохранить тест</button>
+                            </div>
+                        </form>
+
+                        <form method="post"
+                              action="{{ url_for('admin_manage_test', course_id=c.id) }}"
+                              class="inline-form"
+                              onsubmit="return confirm('Удалить этот тест вместе с вопросами и ответами?');">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="test_id" value="{{ t.id }}">
+                            <button type="submit" class="btn btn-small btn-danger">
+                                Удалить тест
+                            </button>
+                        </form>
+
+                        <hr>
+
+                        {# --- 2. Вопросы теста (select + один активный блок) --- #}
+                        <h3>Вопросы теста</h3>
+
+                        {% if q_list %}
+                            <div class="form-group">
+                                <label>Выберите вопрос для редактирования</label>
+                                <select id="question-select-{{ t.id }}"
+                                        onchange="adminSelectQuestion({{ t.id }}, this.value)">
+                                    {% for q in q_list %}
+                                        <option value="{{ q.id }}">
+                                            Вопрос {{ loop.index }}:
+                                            {{ q.question_text[:60] }}{% if q.question_text|length > 60 %}...{% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="questions-list">
+                                {% for q in q_list %}
+                                    {% set a_list = answers_by_question.get(q.id, []) if answers_by_question is defined else [] %}
+
+                                    <div class="question-block"
+                                         data-test-id="{{ t.id }}"
+                                         data-question-id="{{ q.id }}"
+                                         {% if not loop.first %}style="display:none;"{% endif %}>
+
+                                        {# --- Редактирование вопроса (test_questions) --- #}
+                                        <form method="post"
+                                              action="{{ url_for('admin_manage_question',
+                                                                 course_id=c.id,
+                                                                 test_id=t.id) }}"
+                                              class="admin-form">
+                                            <input type="hidden" name="action" value="update">
+                                            <input type="hidden" name="question_id" value="{{ q.id }}">
+
+                                            <div class="form-row">
+                                                <div class="form-group">
+                                                    <label>Порядок</label>
+                                                    <input type="number" name="sort_order"
+                                                           value="{{ q.sort_order }}" style="width:80px;">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Вес (баллы)</label>
+                                                    <input type="number" step="0.1" name="score"
+                                                           value="{{ q.score }}" style="width:90px;">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Тип вопроса</label>
+                                                    <select name="question_type">
+                                                        <option value="single_choice"
+                                                            {% if q.question_type == 'single_choice' %}selected{% endif %}>
+                                                            Одиночный выбор
+                                                        </option>
+                                                        <option value="multiple_choice"
+                                                            {% if q.question_type == 'multiple_choice' %}selected{% endif %}>
+                                                            Множественный выбор
+                                                        </option>
+                                                        <option value="text"
+                                                            {% if q.question_type == 'text' %}selected{% endif %}>
+                                                            Текстовый ответ
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label>Текст вопроса</label>
+                                                <textarea name="question_text" rows="2" required>{{ q.question_text }}</textarea>
+                                            </div>
+
+                                            <div class="form-actions">
+                                                <button type="submit" class="btn btn-small">Сохранить вопрос</button>
+                                            </div>
+                                        </form>
+
+                                        <form method="post"
+                                              action="{{ url_for('admin_manage_question',
+                                                                 course_id=c.id,
+                                                                 test_id=t.id) }}"
+                                              class="inline-form"
+                                              onsubmit="return confirm('Удалить вопрос вместе с ответами?');">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="question_id" value="{{ q.id }}">
+                                            <button type="submit" class="btn btn-small btn-danger">
+                                                Удалить вопрос
+                                            </button>
+                                        </form>
+
+                                        {# --- Ответы к вопросу (test_answers) --- #}
+                                        <div class="answers-block">
+                                            <p><strong>Ответы:</strong></p>
+
+                                            {% if a_list %}
+                                                <table class="admin-table small-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>ID</th>
+                                                            <th>Порядок</th>
+                                                            <th>Текст</th>
+                                                            <th>Верный</th>
+                                                            <th>Действия</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% for a in a_list %}
+                                                        <tr>
+                                                            <td>{{ a.id }}</td>
+                                                            <td>
+                                                                <form method="post"
+                                                                      action="{{ url_for('admin_manage_answer',
+                                                                                         course_id=c.id,
+                                                                                         test_id=t.id) }}"
+                                                                      class="inline-form">
+                                                                    <input type="hidden" name="action" value="update">
+                                                                    <input type="hidden" name="answer_id" value="{{ a.id }}">
+                                                                    <input type="number" name="sort_order"
+                                                                           value="{{ a.sort_order }}" style="width:60px;">
+                                                            </td>
+                                                            <td>
+                                                                    <input type="text" name="answer_text"
+                                                                           value="{{ a.answer_text }}" style="width:100%;">
+                                                            </td>
+                                                            <td>
+                                                                    <label class="checkbox-inline">
+                                                                        <input type="checkbox" name="is_correct"
+                                                                               {% if a.is_correct %}checked{% endif %}>
+                                                                        Верный
+                                                                    </label>
+                                                            </td>
+                                                            <td>
+                                                                    <button type="submit" class="btn btn-small">
+                                                                        Сохранить
+                                                                    </button>
+                                                                </form>
+
+                                                                <form method="post"
+                                                                      action="{{ url_for('admin_manage_answer',
+                                                                                         course_id=c.id,
+                                                                                         test_id=t.id) }}"
+                                                                      class="inline-form"
+                                                                      onsubmit="return confirm('Удалить ответ?');">
+                                                                    <input type="hidden" name="action" value="delete">
+                                                                    <input type="hidden" name="answer_id" value="{{ a.id }}">
+                                                                    <button type="submit"
+                                                                            class="btn btn-small btn-danger">
+                                                                        Удалить
+                                                                    </button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            {% else %}
+                                                <p><em>Ответов пока нет.</em></p>
+                                            {% endif %}
+
+                                            <h5>Добавить ответ</h5>
+                                            <form method="post"
+                                                  action="{{ url_for('admin_manage_answer',
+                                                                     course_id=c.id,
+                                                                     test_id=t.id) }}"
+                                                  class="admin-form">
+                                                <input type="hidden" name="action" value="create">
+                                                <input type="hidden" name="question_id" value="{{ q.id }}">
+
+                                                <div class="form-row">
+                                                    <div class="form-group">
+                                                        <label>Порядок</label>
+                                                        <input type="number" name="sort_order" value="1" style="width:70px;">
+                                                    </div>
+                                                    <div class="form-group" style="flex:1;">
+                                                        <label>Текст ответа</label>
+                                                        <input type="text" name="answer_text" required>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="checkbox-inline">
+                                                            <input type="checkbox" name="is_correct">
+                                                            Верный
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-actions">
+                                                    <button type="submit" class="btn btn-small">Добавить ответ</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p><em>Вопросов в этом тесте пока нет.</em></p>
+                        {% endif %}
+
+                        <hr>
+
+                        {# --- 3. Добавить новый вопрос --- #}
+                        <h3>Добавить новый вопрос</h3>
+                        <form method="post"
+                              action="{{ url_for('admin_manage_question',
+                                                 course_id=c.id,
+                                                 test_id=t.id) }}"
+                              class="admin-form">
+                            <input type="hidden" name="action" value="create">
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Порядок</label>
+                                    <input type="number" name="sort_order" value="1" style="width:70px;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Вес (баллы)</label>
+                                    <input type="number" step="0.1" name="score" value="1" style="width:90px;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Тип вопроса</label>
+                                    <select name="question_type">
+                                        <option value="single_choice">Одиночный выбор</option>
+                                        <option value="multiple_choice">Множественный выбор</option>
+                                        <option value="text">Текстовый ответ</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Текст вопроса</label>
+                                <textarea name="question_text" rows="2" required></textarea>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Добавить вопрос</button>
+                                <button type="button" class="btn btn-secondary"
+                                        onclick="closeModal('edit-test-{{ t.id }}')">
+                                    Закрыть
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+    {% endfor %}
+
+</div>
+
+{# Немного JS для переключения модулей и открытия модалки добавления #}
+<script>
+const REORDER_URL_TEMPLATE = "{{ url_for('admin_reorder_module_item', module_id=0) }}";
+
+function adminSelectModule(courseId, moduleId) {
+    const blocks = document.querySelectorAll(
+        '.content-module-block[data-course-id="' + courseId + '"]'
+    );
+    blocks.forEach(function (block) {
+        if (block.getAttribute('data-module-id') === moduleId) {
+            block.style.display = 'block';
+        } else {
+            block.style.display = 'none';
+        }
+    });
+}
+
+function openAddContentModal(courseId, moduleId) {
+    const modalId = 'add-content-modal-' + courseId;
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
+    const moduleInputs = modal.querySelectorAll('.add-content-module-id');
+    moduleInputs.forEach(function (inp) {
+        inp.value = moduleId;
+    });
+
+    openModal(modalId);
+}
+
+function onChangeContentType(selectEl) {
+    // Здесь позже можно будет динамически менять набор полей
+    // в зависимости от выбранного типа элемента.
+}
+
+function reorderModuleItem(moduleId, itemType, itemId, direction, courseId) {
+    const url = REORDER_URL_TEMPLATE.replace('/0/', '/' + moduleId + '/');
+
+    const body = new URLSearchParams();
+    body.append('item_type', itemType);
+    body.append('item_id', itemId);
+    body.append('direction', direction);
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+        },
+        body: body.toString()
+    }).then(resp => resp.json())
+      .then(data => {
+          if (!data.success) {
+              alert('Не удалось изменить порядок элемента');
+              console.error(data.error || data);
+              return;
+          }
+
+          // Переставляем элемент в DOM без перезагрузки
+          const blockSelector =
+              '.content-module-block[data-course-id="' + courseId + '"][data-module-id="' + moduleId + '"]';
+          const block = document.querySelector(blockSelector);
+          if (!block) return;
+
+          const list = block.querySelector('.content-items-list');
+          if (!list) return;
+
+          const items = Array.from(list.querySelectorAll('.content-item:not(.content-item-add)'));
+          const li = items.find(el =>
+              el.dataset.itemType === itemType && Number(el.dataset.itemId) === Number(itemId)
+          );
+          if (!li) return;
+
+          const idx = items.indexOf(li);
+          if (direction === 'up' && idx > 0) {
+              list.insertBefore(li, items[idx - 1]);
+          } else if (direction === 'down' && idx < items.length - 1) {
+              const next = items[idx + 1];
+              list.insertBefore(li, next.nextSibling);
+          }
+      })
+      .catch(err => {
+          console.error(err);
+          alert('Ошибка при изменении порядка');
+      });
+}
+
+/* === НОВОЕ: переключение вопросов в модалке теста === */
+function adminSelectQuestion(testId, questionId) {
+    const blocks = document.querySelectorAll(
+        '.question-block[data-test-id="' + testId + '"]'
+    );
+    blocks.forEach(function (block) {
+        if (block.getAttribute('data-question-id') === questionId) {
+            block.style.display = 'block';
+        } else {
+            block.style.display = 'none';
+        }
+    });
+}
+</script>
+
+{% endblock %}

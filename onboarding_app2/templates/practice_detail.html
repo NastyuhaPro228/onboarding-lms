@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Практика: {{ practice.title }} | {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav class="breadcrumbs">
+        <a href="{{ url_for('index') }}">Главная</a> /
+        <a href="{{ url_for('course_detail', course_id=course.id) }}">{{ course.title }}</a> /
+        <span>Практика: {{ practice.title }}</span>
+    </nav>
+
+    <header class="practice-header">
+        <h1>{{ practice.title }}</h1>
+        <p class="practice-meta">
+            Модуль: <strong>{{ practice.module_title }}</strong>
+            {% if practice.is_active == 0 %}
+                <span class="badge badge-danger" style="margin-left: 8px;">Неактивно</span>
+            {% endif %}
+        </p>
+
+        {% if practice.description %}
+            <p class="practice-description">{{ practice.description }}</p>
+        {% endif %}
+    </header>
+
+    <section class="practice-task">
+        <h2>Задание</h2>
+
+        {# Текст задания, если есть #}
+        {% if practice.task_text %}
+            <div class="practice-task-text">
+                {{ practice.task_text | safe }}
+            </div>
+        {% endif %}
+
+        {# Прикреплённый файл (инструкция, шаблон и т.п.), если есть #}
+        {% if practice.task_file_url %}
+            <div class="practice-task-file">
+                <p><strong>Дополнительный файл к заданию:</strong></p>
+                <a href="{{ practice.task_file_url }}" target="_blank" class="btn btn-secondary">
+                    Открыть / скачать файл задания
+                </a>
+            </div>
+        {% endif %}
+
+        {% if not practice.task_text and not practice.task_file_url %}
+            <p><em>Текст задания пока не заполнен.</em></p>
+        {% endif %}
+    </section>
+
+    <hr>
+
+    <section class="practice-answer">
+        <h2>Ваш ответ</h2>
+
+        <p class="answer-hint">
+            Формат ответа:
+            {% if practice.expected_answer_type == 'text' %}
+                <strong>текстовый ответ (обязателен), файл — по желанию</strong>.
+            {% elif practice.expected_answer_type == 'file' %}
+                <strong>файл (обязателен), текстовый комментарий — по желанию</strong>.
+            {% else %}
+                <strong>текст, файл или и то, и другое</strong> — главное, чтобы был хотя бы один из вариантов.
+            {% endif %}
+        </p>
+
+        <form method="post"
+              action="{{ url_for('submit_practice', course_id=course.id, practice_id=practice.id) }}"
+              enctype="multipart/form-data"
+              class="practice-form">
+
+            <div class="form-group">
+                <label for="answer_text">Текст ответа</label>
+                <textarea name="answer_text"
+                          id="answer_text"
+                          rows="5"
+                          placeholder="Опишите решение задания, ваши выводы или приложите ссылку…"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="answer_file">Файл с решением (если нужно)</label>
+                <input type="file" name="answer_file" id="answer_file">
+                <p class="form-hint">
+                    Можно прикрепить документ, презентацию, изображение или архив — в зависимости от формата работы.
+                </p>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Отправить решение</button>
+                <a href="{{ url_for('course_detail', course_id=course.id) }}"
+                   class="btn btn-secondary">
+                    Вернуться к структуре курса
+                </a>
+            </div>
+        </form>
+    </section>
+
+    {% if last_submission %}
+        <hr>
+        <section class="practice-last-submission">
+            <h2>Последняя отправка</h2>
+
+            <p>
+                Статус:
+                {% if last_submission.status == 'submitted' %}
+                    <span class="badge badge-info">Отправлено</span>
+                {% elif last_submission.status == 'under_review' %}
+                    <span class="badge badge-warning">На проверке</span>
+                {% elif last_submission.status == 'approved' %}
+                    <span class="badge badge-success">Принято</span>
+                {% elif last_submission.status == 'rejected' %}
+                    <span class="badge badge-danger">Отклонено</span>
+                {% endif %}
+            </p>
+
+            <p>
+                Отправлено: {{ last_submission.submitted_at }}
+                {% if last_submission.reviewed_at %}
+                    <br>Проверено: {{ last_submission.reviewed_at }}
+                {% endif %}
+            </p>
+
+            {% if last_submission.answer_text %}
+                <div class="submitted-text">
+                    <h3>Отправленный текст</h3>
+                    <pre>{{ last_submission.answer_text }}</pre>
+                </div>
+            {% endif %}
+
+            {% if last_submission.answer_file_url %}
+                <div class="submitted-file">
+                    <h3>Прикреплённый файл</h3>
+                    <a href="{{ last_submission.answer_file_url }}"
+                       target="_blank"
+                       class="btn btn-secondary">
+                        Открыть / скачать файл ответа
+                    </a>
+                </div>
+            {% endif %}
+
+            {% if last_submission.review_comment %}
+                <div class="review-comment">
+                    <h3>Комментарий проверяющего</h3>
+                    <p>{{ last_submission.review_comment }}</p>
+                </div>
+            {% endif %}
+        </section>
+    {% endif %}
+</div>
+{% endblock %}

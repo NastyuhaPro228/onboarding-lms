@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Тест: {{ test.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav class="breadcrumbs">
+        <a href="{{ url_for('index') }}">Главная</a> /
+        <a href="{{ url_for('course_detail', course_id=course.id) }}">{{ course.title }}</a> /
+        <span>Тест: {{ test.title }}</span>
+    </nav>
+
+    <header class="test-header">
+        <h1>Тест: {{ test.title }}</h1>
+        {% if test.description %}
+            <p class="test-description">{{ test.description }}</p>
+        {% endif %}
+        <p class="test-meta">
+            Порог прохождения: <strong>{{ test.passing_score }}%</strong>
+            {% if test.attempts_limit %}
+                &nbsp;|&nbsp; Максимум попыток: <strong>{{ test.attempts_limit }}</strong>
+            {% else %}
+                &nbsp;|&nbsp; Попыток не ограничено
+            {% endif %}
+        </p>
+    </header>
+
+    {% if questions %}
+        <form method="post"
+              action="{{ url_for('start_test', course_id=course.id, test_id=test.id) }}"
+              class="test-form">
+
+            <ol class="test-questions-list">
+                {% for q in questions %}
+                    <li class="test-question-item">
+                        <div class="question-header">
+                            <span class="question-number">Вопрос {{ loop.index }}</span>
+                            <span class="question-score">{{ q.score }} балл(ов)</span>
+                        </div>
+                        <p class="question-text">{{ q.question_text }}</p>
+
+                        {% set answers = answers_by_question.get(q.id, []) %}
+                        {% if answers %}
+                            <ul class="answers-list">
+                                {% for a in answers %}
+                                    <li class="answer-item">
+                                        <label>
+                                            <input type="radio"
+                                                   name="q_{{ q.id }}"
+                                                   value="{{ a.id }}">
+                                            <span>{{ a.answer_text }}</span>
+                                        </label>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p><em>Для этого вопроса пока нет вариантов ответа.</em></p>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ol>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    Отправить ответы
+                </button>
+                <a href="{{ url_for('course_detail', course_id=course.id) }}"
+                   class="btn btn-secondary">
+                    Вернуться к курсу
+                </a>
+            </div>
+        </form>
+    {% else %}
+        <p><em>В этом тесте пока нет вопросов.</em></p>
+        <a href="{{ url_for('course_detail', course_id=course.id) }}" class="btn btn-secondary">
+            Вернуться к курсу
+        </a>
+    {% endif %}
+</div>
+{% endblock %}

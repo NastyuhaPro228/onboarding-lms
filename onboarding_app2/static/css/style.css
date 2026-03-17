@@ -1,0 +1,898 @@
+/* =========================
+   БАЗА / ЛЕЙАУТ
+   ========================= */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f4f6fb;
+    color: #111827;
+}
+
+a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.container {
+    width: 95%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.main-content {
+    padding: 20px 0 40px;
+}
+
+/* Подсказки / мелкий текст */
+.hint {
+    margin-top: 4px;
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+/* =========================
+   ХЕДЕР
+   ========================= */
+
+.site-header {
+    background: #0f172a;
+    color: #fff;
+    padding: 10px 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.logo a {
+    color: #e5e7eb;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.logo span {
+    color: #38bdf8;
+}
+
+.main-nav a {
+    color: #cbd5f5;
+    margin-right: 1rem;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.main-nav a:last-child {
+    margin-right: 0;
+}
+
+.main-nav a:hover {
+    color: #fff;
+}
+
+.header-auth {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.header-user {
+    font-size: 0.9rem;
+    color: #d1d5db;
+}
+
+/* =========================
+   HERO / КАРТОЧКИ КУРСОВ
+   ========================= */
+
+.hero {
+    margin-bottom: 25px;
+    padding: 25px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #1d4ed8, #0f766e);
+    color: #f9fafb;
+}
+
+.hero-text h1 {
+    margin: 0 0 10px;
+    font-size: 1.8rem;
+}
+
+.hero-text p {
+    margin: 5px 0;
+}
+
+.hero-note {
+    margin-top: 12px;
+    font-style: italic;
+    opacity: 0.9;
+}
+
+.courses-section h2 {
+    margin-bottom: 15px;
+}
+
+.courses-grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.course-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(15,23,42,0.08);
+    border: 1px solid #e5e7eb;
+}
+
+.course-card h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 1.15rem;
+}
+
+.course-meta {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.course-desc {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+/* =========================
+   КНОПКИ
+   ========================= */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    text-decoration: none;
+    line-height: 1.2;
+    background: #e5e7eb;
+    color: #111827;
+    transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.btn:hover {
+    background: #d1d5db;
+    text-decoration: none;
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.btn:disabled,
+.btn[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.btn-primary {
+    background: #2563eb;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #1d4ed8;
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+.btn-outline {
+    background: transparent;
+    color: #2563eb;
+    border: 1px solid #60a5fa;
+}
+
+.btn-outline:hover {
+    background: rgba(37,99,235,0.05);
+}
+
+.btn-danger {
+    background: #dc2626;
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+.btn-small {
+    padding: 4px 10px;
+    font-size: 0.8rem;
+}
+
+/* Ссылкоподобная кнопка (для заголовков элементов) */
+.btn-link {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: #2563eb;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+    background: transparent;
+}
+
+/* Компактная иконка-кнопка (стрелки вверх/вниз и т.п.) */
+.btn-icon {
+    background: transparent;
+    border: 1px solid #d1d5db;
+    border-radius: 999px;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.btn-icon:hover {
+    background: #e5e7eb;
+}
+
+/* =========================
+   FLASH-СООБЩЕНИЯ
+   ========================= */
+
+.flash-container {
+    margin-bottom: 15px;
+}
+
+.flash {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+}
+
+.flash-success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.flash-danger {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.flash-warning {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.flash-info {
+    background: #e0f2fe;
+    color: #0c4a6e;
+}
+
+/* =========================
+   БЭЙДЖИ
+   ========================= */
+
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+}
+
+.badge-success {
+    background: #bbf7d0;
+    color: #166534;
+}
+
+.badge-danger {
+    background: #fecaca;
+    color: #b91c1c;
+}
+
+.badge-muted {
+    background: #e5e7eb;
+    color: #4b5563;
+}
+
+/* Специальные бейджи для контента курса */
+.badge-lecture {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.badge-practice {
+    background: #ecfdf5;
+    color: #15803d;
+}
+
+.badge-test {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+/* =========================
+   ФОРМЫ / ИНПУТЫ / RICHTEXT
+   ========================= */
+
+.form-group {
+    margin-bottom: 10px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+    color: #374151;
+}
+
+/* Базовый стиль для всех контролов */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="url"],
+input[type="file"],
+input[type="datetime-local"],
+select,
+textarea {
+    width: 100%;
+    padding: 7px 9px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background-color: #ffffff;
+    color: #111827;
+    box-shadow: 0 0 0 1px transparent;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+/* Селекты – убираем системные стрелки где возможно */
+select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #6b7280 50%),
+                      linear-gradient(135deg, #6b7280 50%, transparent 50%);
+    background-position: calc(100% - 14px) calc(50% - 3px), calc(100% - 10px) calc(50% + 3px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 28px; /* место под стрелку */
+}
+
+/* hover / focus */
+input:hover,
+select:hover,
+textarea:hover {
+    background-color: #f9fafb;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 1px rgba(37,99,235,0.35);
+    background-color: #ffffff;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Инпуты поменьше в таблицах админки */
+.admin-table input[type="text"],
+.admin-table input[type="number"],
+.admin-table select,
+.admin-table textarea {
+    font-size: 0.8rem;
+    padding: 4px 6px;
+}
+
+/* Строки формы */
+.form-row {
+    display: flex;
+    gap: 10px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+.form-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+}
+
+/* Чекбоксы в линию */
+.checkbox-inline {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.8rem;
+    gap: 4px;
+}
+
+/* =========================
+   RICHTEXT-РЕДАКТОР
+   ========================= */
+
+.richtext,
+.richtext-editor-wrapper {
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    overflow: hidden;
+}
+
+/* панель инструментов */
+.richtext-toolbar {
+    padding: 6px 8px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f3f4f6;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* контентная область */
+.richtext-editor,
+.richtext-content {
+    background: #ffffff;
+    padding: 8px 10px;
+    min-height: 140px;
+    max-height: 320px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    color: #111827;
+}
+
+/* Если richtext – это iframe внутри контейнера */
+.richtext iframe,
+.richtext-editor iframe {
+    width: 100%;
+    border: none;
+}
+
+/* =========================
+   АДМИНКА / ТАБЛИЦЫ
+   ========================= */
+
+.admin-container h1 {
+    margin-bottom: 20px;
+}
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1.2fr;
+    gap: 20px;
+}
+
+.admin-block {
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(15,23,42,0.08);
+    border: 1px solid #e5e7eb;
+}
+
+.admin-block h2 {
+    margin-top: 0;
+}
+
+.admin-form {
+    margin-bottom: 15px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.admin-table th,
+.admin-table td {
+    border: 1px solid #e5e7eb;
+    padding: 6px 8px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.admin-table th {
+    background: #f9fafb;
+    font-weight: 600;
+}
+
+.admin-table.small-table th,
+.admin-table.small-table td {
+    font-size: 0.8rem;
+    padding: 4px 6px;
+}
+
+/* inline-формы в таблицах */
+.inline-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+}
+
+.inline-form input[type="text"],
+.inline-form input[type="number"] {
+    padding: 3px 5px;
+    font-size: 0.8rem;
+}
+
+/* Блок назначения курсов пользователям */
+.user-courses-columns {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.user-courses-column {
+    flex: 1;
+}
+
+/* =========================
+   МОДАЛЬНЫЕ ОКНА
+   ========================= */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.5);
+    display: none;
+    align-items: flex-start;   /* начинаем сверху */
+    justify-content: center;
+    z-index: 50;
+    padding: 40px 10px;        /* отступы вокруг модалки */
+    overflow-y: auto;          /* если модалка высокая — скроллим фон */
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    width: 100%;
+    max-width: 420px;          /* обычные модалки */
+    max-height: 80vh;          /* не выше 80% экрана */
+    box-shadow: 0 10px 25px rgba(15,23,42,0.4);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal.modal-large {
+    max-width: 650px;          /* крупные (редактор тестов/модулей) */
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+/* тело модалки прокручивается, хедер закреплён */
+.modal-body {
+    margin-top: 6px;
+    overflow-y: auto;
+}
+
+/* =========================
+   КАРТОЧКИ МОДУЛЕЙ / УРОКОВ
+   ========================= */
+
+.module-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.module-card-locked h3,
+.module-card-locked .module-desc,
+.module-card-locked .item-desc {
+    color: #9ca3af;
+}
+
+.locked-link {
+    color: #9ca3af;
+    cursor: default;
+    text-decoration: none;
+}
+
+.module-card-locked .module-item-header a {
+    pointer-events: none;
+    color: #9ca3af;
+    text-decoration: none;
+}
+
+.lesson-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 10px 0 0;
+}
+
+.lesson-item {
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #f9fafb;
+}
+
+.lesson-desc {
+    margin: 4px 0;
+    font-size: 0.9rem;
+}
+
+.lesson-time {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.lesson-materials ul {
+    margin: 4px 0 0;
+    padding-left: 18px;
+}
+
+.material-text {
+    margin-top: 4px;
+    font-size: 0.85rem;
+    color: #374151;
+}
+
+/* Структура контента модуля */
+.content-items-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.content-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    margin-bottom: 6px;
+}
+
+.content-item-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.content-item-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.content-item-add {
+    justify-content: flex-start;
+    border-style: dashed;
+}
+
+/* =========================
+   ТЕСТЫ / ВОПРОСЫ
+   ========================= */
+
+.test-question,
+.question-block {
+    margin-bottom: 16px;
+    padding: 10px 12px;
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+}
+
+.question-text {
+    margin-bottom: 6px;
+}
+
+.answers-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.answers-list li {
+    margin-bottom: 4px;
+}
+
+.answers-block {
+    margin-top: 8px;
+}
+
+/* =========================
+   ПРОГРЕСС КУРСА
+   ========================= */
+
+.course-progress-block {
+    margin: 10px 0 20px;
+}
+
+.progress-bar {
+    width: 100%;
+    max-width: 400px;
+    height: 12px;
+    border-radius: 999px;
+    background: #e5e7eb;
+    overflow: hidden;
+    border: 1px solid #d1d5db;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+    transition: width 0.3s ease;
+}
+
+/* Верхняя строка урока с прогрессом/кнопками */
+.lesson-header-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.lesson-progress-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+/* =========================
+   ИТОГОВЫЕ ТЕСТЫ КУРСА
+   ========================= */
+
+.course-final-tests {
+    margin-top: 2rem;
+    padding: 1.5rem 1.75rem;
+    background-color: #f7f9fc;
+    border-radius: 10px;
+    border: 1px solid #e0e4ec;
+}
+
+.course-final-tests-header h2 {
+    margin: 0 0 0.5rem 0;
+}
+
+.final-tests-hint {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.final-tests-list {
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0 0;
+}
+
+.final-test-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e0e4ec;
+}
+
+.final-test-item:last-child {
+    border-bottom: none;
+}
+
+.final-test-main {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.final-test-link {
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.final-test-link:hover {
+    text-decoration: underline;
+}
+
+.final-test-locked .final-test-link,
+.final-test-locked .item-desc {
+    color: #9ca3af;
+}
+
+.final-test-locked .final-test-link {
+    cursor: default;
+    text-decoration: none;
+    pointer-events: none;
+}
+
+/* =========================
+   АДАПТИВ
+   ========================= */
+
+@media (max-width: 900px) {
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+
+    .user-courses-columns {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 700px) {
+    .lesson-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .lesson-progress-controls {
+        align-items: flex-start;
+    }
+}

@@ -1,0 +1,32 @@
+<!-- templates/header.html -->
+<header class="site-header">
+    <div class="container header-inner">
+        <div class="logo">
+            <a href="{{ url_for('index') }}">Академия<span>Плюс</span></a>
+        </div>
+
+        <nav class="main-nav">
+            <a href="{{ url_for('index') }}">Главная</a>
+
+            {% if user %}
+                <a href="{{ url_for('profile') }}">Профиль</a>
+            {% endif %}
+
+            {% if user and user.role_code == 'admin' %}
+                <a href="{{ url_for('admin_panel') }}">Административная панель</a>
+            {% endif %}
+        </nav>
+
+        <div class="header-auth">
+            {% if user %}
+                <span class="header-user">
+                    {{ user.last_name }} {{ user.first_name }}
+                    ({{ 'Админ' if user.role_code == 'admin' else 'Пользователь' }})
+                </span>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline">Выйти</a>
+            {% else %}
+                <button class="btn btn-primary" onclick="openLoginModal()">Войти</button>
+            {% endif %}
+        </div>
+    </div>
+</header>
