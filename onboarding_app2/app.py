@@ -5,8 +5,28 @@ import os
 from uuid import uuid4
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-
+# update_passwords.py
+from werkzeug.security import generate_password_hash
 import db
+
+# Словарь с пользователями и их паролями
+users = [
+    {'email': 'admin@company.local', 'password': 'admin_hash'},
+    {'email': 'trainer@company.local', 'password': 'trainer_hash'},
+    {'email': 'emp1@company.local', 'password': 'emp1_hash'},
+    {'email': 'emp2@company.local', 'password': 'emp2_hash'},
+]
+
+for user in users:
+    hashed = generate_password_hash(user['password'])
+    db.execute(
+        "UPDATE users SET password_hash = %s WHERE email = %s",
+        (hashed, user['email'])
+    )
+    print(f"Обновлен пароль для {user['email']}")
+
+print("Готово! Теперь пароли захэшированы.")
+
 
 app = Flask(__name__)
 app.secret_key = "super_secret_key_change_me"  # поменяй на свой
