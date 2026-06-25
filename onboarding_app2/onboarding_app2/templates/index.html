@@ -1,0 +1,78 @@
+<!-- templates/index.html -->
+{% extends "base.html" %}
+
+{% block title %}Доступные курсы | Обучение новых сотрудников{% endblock %}
+
+{% block content %}
+<div class="container">
+    <section class="hero">
+        <div class="hero-text">
+            <h1>Обучение новых сотрудников</h1>
+            <p>
+                Здесь собраны курсы, которые помогут быстро включиться в работу,
+                освоить техники продаж и стандарты обслуживания гостей.
+            </p>
+            {% if not user %}
+                <p class="hero-note">
+                    Чтобы просматривать содержание курсов и проходить тесты, авторизуйтесь.
+                </p>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="courses-section">
+        <h2>Доступные курсы</h2>
+
+        {% if courses %}
+            <div class="courses-grid">
+                {% for course in courses %}
+                    <article class="course-card">
+                        <h3>{{ course.title }}</h3>
+                        <p class="course-meta">
+                            Автор: {{ course.last_name }} {{ course.first_name }}<br>
+                            Создан: {{ course.created_at.strftime('%d.%m.%Y') if course.created_at else '' }}
+                        </p>
+                        <p class="course-desc">
+                            {{ course.description or 'Описание курса пока не добавлено.' }}
+                        </p>
+
+                        {% if user %}
+                            {% if course.id in enrollment_map %}
+                                <span class="badge badge-success">
+                                    Статус:
+                                    {% if enrollment_map[course.id] == 'assigned' %}
+                                        Назначен
+                                    {% elif enrollment_map[course.id] == 'in_progress' %}
+                                        В процессе
+                                    {% elif enrollment_map[course.id] == 'completed' %}
+                                        Завершён
+                                    {% else %}
+                                        {{ enrollment_map[course.id] }}
+                                    {% endif %}
+                                </span>
+                            {% else %}
+                                <span class="badge badge-muted">
+                                    Курс ещё не назначен.
+                                </span>
+                            {% endif %}
+
+                            <div style="margin-top: 10px;">
+                                <a class="btn btn-primary"
+                                   href="{{ url_for('course_detail', course_id=course.id) }}">
+                                    Перейти к курсу
+                                </a>
+                            </div>
+                        {% else %}
+                            <span class="badge badge-muted">
+                                Авторизуйтесь для просмотра содержания и теста.
+                            </span>
+                        {% endif %}
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Пока нет доступных курсов.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

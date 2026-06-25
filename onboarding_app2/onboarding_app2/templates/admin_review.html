@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="mb-3">
+        <a href="/admin/practice_submissions" class="btn btn-outline-secondary">← Назад к списку</a>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <h3>Проверка задания</h3>
+        </div>
+        <div class="card-body">
+            <p><strong>Студент:</strong> {{ submission.last_name }} {{ submission.first_name }}</p>
+            <p><strong>Email:</strong> {{ submission.email }}</p>
+            <p><strong>Курс:</strong> {{ submission.course_title }}</p>
+            <p><strong>Модуль:</strong> {{ submission.module_title }}</p>
+            <p><strong>Практика:</strong> {{ submission.practice_title }}</p>
+            
+            <hr>
+            
+            <h5>Текст задания:</h5>
+            <div class="alert alert-secondary">
+                {{ submission.task_text or "Нет описания" }}
+            </div>
+            
+            <h5>Ответ студента:</h5>
+            {% if submission.answer_text %}
+                <div class="alert alert-info">
+                    {{ submission.answer_text }}
+                </div>
+            {% endif %}
+            
+            {% if submission.answer_file_url %}
+                <p><a href="{{ submission.answer_file_url }}" target="_blank">📎 Скачать файл</a></p>
+            {% endif %}
+            
+            <hr>
+            
+            <!-- Здесь потом можно добавить форму с оценкой -->
+            <div class="alert alert-warning">
+                Функционал оценки в разработке
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.title }} | Курс{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav class="breadcrumbs">
+        <a href="{{ url_for('index') }}">Главная</a> /
+        <span>{{ course.title }}</span>
+    </nav>
+
+    <header class="course-header">
+        <h1>{{ course.title }}</h1>
+        {% if course.description %}
+            <p class="course-description">{{ course.description }}</p>
+        {% endif %}
+
+        <p class="course-meta">
+            Автор курса:
+            <strong>{{ course.author_last_name }} {{ course.author_first_name }}</strong><br>
+            Статус:
+            {% if course.is_active %}
+                <span class="badge badge-success">Активен</span>
+            {% else %}
+                <span class="badge badge-danger">Неактивен</span>
+            {% endif %}
+        </p>
+
+        {% if enrollment %}
+            <div class="course-progress">
+                <p>
+                    Прогресс по курсу:
+                    <strong>{{ course_progress_pct }}%</strong>
+                    (по завершённым урокам)
+                </p>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" style="width: {{ course_progress_pct }}%;"></div>
+                </div>
+                <p>
+                    Статус назначения:
+                    {% if enrollment.status == 'assigned' %}
+                        <span class="badge badge-muted">Назначен</span>
+                    {% elif enrollment.status == 'in_progress' %}
+                        <span class="badge badge-info">В процессе</span>
+                    {% elif enrollment.status == 'completed' %}
+                        <span class="badge badge-success">Завершён</span>
+                    {% elif enrollment.status == 'cancelled' %}
+                        <span class="badge badge-danger">Отменён</span>
+                    {% endif %}
+                </p>
+            </div>
+        {% else %}
+            <p><em>Курс вам пока не назначен.</em></p>
+        {% endif %}
+    </header>
+
+    <hr>
+
+    <section class="course-modules">
+        <h2>Структура курса</h2>
+
+        {% if modules %}
+            <div class="modules-list">
+                {% for m in modules %}
+                    {% set module_lectures = lessons_by_module.get(m.id, []) %}
+                    {% set module_practices = practices_by_module.get(m.id, []) %}
+                    {% set module_tests = tests_by_module.get(m.id, []) %}
+                    {% set access = modules_access.get(m.id) %}
+                    {% set is_unlocked = access.is_unlocked if access is not none else True %}
+
+                    <article class="module-card {% if not is_unlocked %}module-card-locked{% endif %}">
+                        <h3 class="{% if not is_unlocked %}text-muted{% endif %}">
+                            Модуль {{ loop.index }}. {{ m.title }}
+                            {% if access and access.is_completed %}
+                                <span class="badge badge-success">Модуль завершён</span>
+                            {% endif %}
+                        </h3>
+
+                        {% if m.description %}
+                            <p class="module-desc {% if not is_unlocked %}text-muted{% endif %}">
+                                {{ m.description }}
+                            </p>
+                        {% endif %}
+
+                        {% if module_lectures or module_practices or module_tests %}
+                            <ol class="module-content-list">
+                                {# 1. Лекции #}
+                                {% for lesson in module_lectures %}
+                                    {% set lp = lessons_progress.get(lesson.id) %}
+                                    <li class="module-item module-item-lecture {% if not is_unlocked %}module-item-locked{% endif %}">
+                                        <div class="module-item-header">
+                                            <span class="badge badge-lecture">Лекция</span>
+
+                                            {% if is_unlocked %}
+                                                <a href="{{ url_for('lesson_detail',
+                                                                    course_id=course.id,
+                                                                    lesson_id=lesson.id) }}">
+                                                    {{ lesson.title }}
+                                                </a>
+                                            {% else %}
+                                                <span class="locked-link" style="color:#999; cursor:default;">
+                                                    {{ lesson.title }}
+                                                </span>
+                                            {% endif %}
+
+                                            {% if lp and lp.status == 'completed' %}
+                                                <span class="badge badge-success">Пройдено</span>
+                                            {% elif lp and lp.status == 'in_progress' %}
+                                                <span class="badge badge-info">В процессе</span>
+                                            {% endif %}
+                                        </div>
+                                        {% if lesson.description %}
+                                            <p class="item-desc {% if not is_unlocked %}text-muted{% endif %}">
+                                                {{ lesson.description }}
+                                            </p>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+
+                                {# 2. Практики #}
+                                {% for p in module_practices %}
+                                    <li class="module-item module-item-practice {% if not is_unlocked %}module-item-locked{% endif %}">
+                                        <div class="module-item-header">
+                                            <span class="badge badge-practice">Практика</span>
+
+                                            {% if is_unlocked %}
+                                                <a href="{{ url_for('practice_detail',
+                                                                    course_id=course.id,
+                                                                    practice_id=p.id) }}">
+                                                    {{ p.title }}
+                                                </a>
+                                            {% else %}
+                                                <span class="locked-link" style="color:#999; cursor:default;">
+                                                    {{ p.title }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                        {% if p.description %}
+                                            <p class="item-desc {% if not is_unlocked %}text-muted{% endif %}">
+                                                {{ p.description }}
+                                            </p>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+
+                                {# 3. Тесты модуля #}
+                                {% for t in module_tests %}
+                                    <li class="module-item module-item-test {% if not is_unlocked %}module-item-locked{% endif %}">
+                                        <div class="module-item-header">
+                                            <span class="badge badge-test">Тест</span>
+
+                                            {% if is_unlocked %}
+                                                <a href="{{ url_for('start_test',
+                                                                    course_id=course.id,
+                                                                    test_id=t.id) }}">
+                                                    {{ t.title }}
+                                                </a>
+                                            {% else %}
+                                                <span class="locked-link" style="color:#999; cursor:default;">
+                                                    {{ t.title }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                        {% if t.description %}
+                                            <p class="item-desc {% if not is_unlocked %}text-muted{% endif %}">
+                                                {{ t.description }}
+                                            </p>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ol>
+                        {% else %}
+                            <p><em>В этом модуле пока нет лекций, практик или тестов.</em></p>
+                        {% endif %}
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p><em>Для этого курса ещё не созданы модули.</em></p>
+        {% endif %}
+    </section>
+
+        {% if final_tests %}
+        <hr>
+        <section class="course-final-tests">
+            <div class="course-final-tests-header">
+                <h2>Финальные тесты по курсу</h2>
+                {% if not all_modules_completed %}
+                    <p class="final-tests-hint">
+                        Финальный тест станет доступен после прохождения всех модулей:
+                        лекций, практик и модульных тестов.
+                    </p>
+                {% endif %}
+            </div>
+
+            {% set can_access_final = all_modules_completed %}
+
+            <ul class="final-tests-list">
+                {% for t in final_tests %}
+                    <li class="final-test-item {% if not can_access_final %}final-test-locked{% endif %}">
+                        <div class="final-test-main">
+                            <span class="badge badge-test">Финальный тест</span>
+
+                            {% if can_access_final %}
+                                <a href="{{ url_for('start_test',
+                                                    course_id=course.id,
+                                                    test_id=t.id) }}"
+                                   class="final-test-link">
+                                    {{ t.title }}
+                                </a>
+                            {% else %}
+                                <span class="final-test-link locked-link">
+                                    {{ t.title }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        {% if t.description %}
+                            <p class="item-desc {% if not can_access_final %}text-muted{% endif %}">
+                                {{ t.description }}
+                            </p>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endif %}
+
+</div>
+{% endblock %}
