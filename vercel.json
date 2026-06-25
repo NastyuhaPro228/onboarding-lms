@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "src": "onboarding_app2/app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "onboarding_app2/app.py"
+    }
+  ]
+}
